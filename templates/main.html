@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <html lang="en">
+        <meta charset="UTF-8">
+        <title>Page Title</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+        <style></style>
+    </head>
+    <body>
+        <div id="page">
+            <div id="upload-section">
+                <h1>Control My Printer</h1>
+                <div class="drop-zone" id="dropZone">
+                    <p>Upload .3mf files here</p>
+                    <input type="file" class="file-input" id="fileInput">
+                </div>
+                <div id="submit-section">
+                    <div class="file-info" id="fileInfo">
+                        <strong>Selected file:</strong>
+                        <div id="fileName"></div>
+                    </div>
+                    <button class="upload-btn" id="uploadBtn">Upload File</button>
+                </div>
+                <div class="status" id="status"></div>
+            </div>
+            <img src="/mjpeg" alt="Live Stream" id="stream" class="logo">
+        </div>
+        <script src="{{ url_for('static', filename='main.js') }}"></script>
+    </body>
+</html>
