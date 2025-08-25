@@ -6,6 +6,21 @@
 - Livestreams printing process to clients via onboard camera
 - Accepts live MQTT reports to display rich data
 
+## Description
+### This repo essentially opens three background processes on a Linux device.
+- A server that exposes your printer to a public facing
+  url, builds and serves a simple website, holds an MQTT
+  subscription to gather printer data, and streams live
+  information to other processes.
+- A framebuffer builder that constructs a display with
+  rich data about print status, system info, etc. With
+  required hardware, it pushes this to a small HDMI screen
+  so you can view the full display in real life.
+- A background RTSP handler that accepts camera frames
+  and streams them to website clients so the print can
+  be viewed live via web. This can also be integrated
+  into the HDMI screen if desired. 
+
 ## Hardware Requirements
 - Linux System (Rasberry Pi 4)
 - 1.05.00 Firmware (Tested)
