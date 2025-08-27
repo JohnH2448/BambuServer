@@ -1,6 +1,7 @@
 import requests
 import time
 import threading
+import random
 from threading import Thread
 # import libpyfb
 
@@ -36,14 +37,9 @@ def build_frame():
     for y in range(H):
         row = bytearray(LINE_LEN)
         for x in range(W):
-            if 100 <= y <= 200 and 100 <= x <= 200:
-                r = x * 255 // (W - 1)
-                g = y * 255 // (H - 1)
-                b = 0
-            else:
-                r = x * 135 // (W - 1)
-                g = x * 135 // (H - 1)
-                b = 40
+            r = random.randint(1, 135)
+            g = random.randint(1, 135)
+            b = random.randint(1, 135)
             row[2*x:2*x+2] = rgb565(r, g, b)
         buf.seek(y * LINE_LEN)
         buf.write(row)
