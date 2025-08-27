@@ -54,3 +54,6 @@ def build_frame():
 
 Thread(target=updates, daemon=True).start()
 Thread(target=build_frame, daemon=True).start()
+
+while True:
+    time.sleep(1)
