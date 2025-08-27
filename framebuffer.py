@@ -31,22 +31,24 @@ def rgb565(r, g, b):
     return struct.pack("<H", (r5 << 11) | (g6 << 5) | b5)
 
 def build_frame():
-    fd = os.open(FB, os.O_RDWR)
-    buf = mmap.mmap(fd, LINE_LEN * H, mmap.MAP_SHARED, mmap.PROT_WRITE | mmap.PROT_READ)
+    while True:
+        fd = os.open(FB, os.O_RDWR)
+        buf = mmap.mmap(fd, LINE_LEN * H, mmap.MAP_SHARED, mmap.PROT_WRITE | mmap.PROT_READ)
 
-    for y in range(H):
-        row = bytearray(LINE_LEN)
-        for x in range(W):
-            r = random.randint(1, 135)
-            g = random.randint(1, 135)
-            b = random.randint(1, 135)
-            row[2*x:2*x+2] = rgb565(r, g, b)
-        buf.seek(y * LINE_LEN)
-        buf.write(row)
+        for y in range(H):
+            row = bytearray(LINE_LEN)
+            for x in range(W):
+                r = random.randint(1, 135)
+                g = random.randint(1, 135)
+                b = random.randint(1, 135)
+                row[2*x:2*x+2] = rgb565(r, g, b)
+            buf.seek(y * LINE_LEN)
+            buf.write(row)
 
-    buf.flush()
-    buf.close()
-    os.close(fd)
+        buf.flush()
+        buf.close()
+        os.close(fd)
+        time.sleep(0.0333)
 
 Thread(target=updates, daemon=True).start()
 Thread(target=build_frame, daemon=True).start()
