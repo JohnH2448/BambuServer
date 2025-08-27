@@ -53,3 +53,6 @@
 6) Go to wifi router settings and configure server and printer IPs as fixed
    
 7) Launch Flask server "mqtt.py" in new terminal
+
+echo 0 | sudo tee /sys/class/vtconsole/vtcon1/bind
+
