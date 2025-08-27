@@ -42,7 +42,7 @@ def build_frame():
                 b = 0
             else:
                 r = x * 135 // (W - 1)
-                g = y * 135 // (H - 1)
+                g = x * 135 // (H - 1)
                 b = 40
             row[2*x:2*x+2] = rgb565(r, g, b)
         buf.seek(y * LINE_LEN)
