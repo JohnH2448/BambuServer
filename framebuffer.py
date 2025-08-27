@@ -49,10 +49,9 @@ def build_frame():
                 buf.write(row)
 
             buf.flush()
-            buf.close()
-            os.close(fd)
             time.sleep(0.0333)
     finally:
+        buf.close()
         os.close(fd)
 
 Thread(target=updates, daemon=True).start()
