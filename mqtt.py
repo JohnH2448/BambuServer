@@ -9,6 +9,9 @@ import ssl
 import uuid
 from queue import Queue, Empty
 import requests
+import ssl
+from ftplib import FTP_TLS
+from io import BytesIO
 
 # Gunicorn Single Worker 5 Threads
 
@@ -36,25 +39,32 @@ def launch_threads():
 # Constructs MJPEG Stream
 def pull_stream():
     global latest_frame
-    url=f"http://{CONTROLLER_IP}:1984/api/stream.mjpeg?src=bambu_camera"
+    url=f"http://127.0.0.1:1984/api/stream.mjpeg?src=bambu_camera"
+    go=False
     while True:
         try:
             with requests.get(url, stream=True, timeout=10) as r:
-                r.raise_for_status()
-                buf = b""
-                for chunk in r.iter_content(chunk_size=4096):
-                    if not chunk:
-                        continue
-                    buf += chunk
-                    # Look for JPEG start & end markers
-                    start = buf.find(b'\xff\xd8')  # SOI
-                    end = buf.find(b'\xff\xd9', start + 2)  # EOI
-                    if start != -1 and end != -1:
-                        jpg = buf[start:end + 2]
-                        buf = buf[end + 2:]
-                        latest_frame = jpg
+                fine=r.raise_for_status()
+                if fine==None:
+                    go=True
+                    buf = b""
+                    for chunk in r.iter_content(chunk_size=4096):
+                        if go:
+                            print("Camera Connected")
+                            go=False
+                        if not chunk:
+                            continue
+                        buf += chunk
+                        # Look for JPEG start & end markers
+                        start = buf.find(b'\xff\xd8')  # SOI
+                        end = buf.find(b'\xff\xd9', start + 2)  # EOI
+                        if start != -1 and end != -1:
+                            jpg = buf[start:end + 2]
+                            buf = buf[end + 2:]
+                            latest_frame = jpg
         except Exception as e:
-            print(f"Stream disconnected: {e}. Reconnecting...")
+            print(f"Camera Disconnected. {e}: Reconnecting...")
+            go=False
             continue
 
 # Runs On MQTT Connection
@@ -62,10 +72,10 @@ def on_connect(client, userdata, flags, rc):
     global printer_status
     if rc == 0:
         printer_status.update({"connection": True})
-        print("Connection Established")
+        print("MQTT Connection Established")
         client.subscribe(TOPIC, qos=0)
     else:
-        print("Connection Failed:", rc)
+        print("MQTT Connection Failed:", rc)
 
 # Runs After MQTT Updates
 def on_message(client, userdata, msg):
@@ -80,7 +90,7 @@ def on_message(client, userdata, msg):
 def on_disconnect(client, userdata, rc):
     global printer_status
     printer_status.update({"connection": False})
-    print("Disconnected:", rc)
+    print("MQTT Disconnected:", rc)
 
 # Establish MQTT Client Connection
 def connect():
@@ -119,9 +129,29 @@ def launch_queue():
             except Empty:
                 if printer_status.get("connection")==False:
                     pass
-                print(printer_status)
     except Exception as e:
         print("Queue Error:", e)
+
+# POST File to FTPS Server
+def upload_file(file, name):
+    try:
+        name=name.replace(".3mf", "")
+        ctx = ssl.create_default_context(cafile="ca_cert.pem")
+        ftps = FTP_TLS(context=ctx)
+        ftps.connect(IP, 990, timeout=10)
+        ftps.prot_p()
+        ftps.login(user="bblp", passwd=ACCESS_CODE)
+        ftps.set_pasv(True)
+        with BytesIO(file) as buf:
+            buf.seek(0)
+            ftps.storbinary(f"STOR /mnt/sdcard/{name}.3mf", buf, blocksize=256*1024) # change path
+        ftps.quit()
+        return True
+    except Exception as e:
+        print("FTPS Upload Error:", e)
+        return False
+    finally:
+        ftps.quit()
 
 # Serves Homepage
 @app.route("/", methods=["GET"])
@@ -156,7 +186,13 @@ def mjpeg():
 @app.route("/upload", methods=["POST"])
 def upload():
     file = request.files['file']
+    if ".3mf" not in file.filename:
+        return "OK", 409
     print(file.filename) 
+    data=file.read()
+    status=upload_file(data, file.filename)
+    if status==False:
+        return "OK", 409
     return "OK", 200
 
 # Launch App
