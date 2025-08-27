@@ -44,7 +44,7 @@ def build_frame():
                     r = ar
                     g = ge
                     b = be
-                    row[2*x:2*x+2] = rgb565(r, g, b)
+                row[2*x:2*x+2] = rgb565(r, g, b)
                 buf.seek(y * LINE_LEN)
                 buf.write(row)
 
