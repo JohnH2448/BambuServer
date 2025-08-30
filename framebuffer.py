@@ -30,10 +30,10 @@ def pack_rgb565(r, g, b):
 def draw_rounded_rect(frame, x, y, w, h, r, color):
     yy, xx = np.ogrid[:h, :w]
     mask = (
-        (xx - r)**2 + (yy - r)**2 <= r**2 |                                # top-left corner
-        (xx - (w - r - 1))**2 + (yy - r)**2 <= r**2 |                      # top-right corner
-        (xx - r)**2 + (yy - (h - r - 1))**2 <= r**2 |                      # bottom-left
-        (xx - (w - r - 1))**2 + (yy - (h - r - 1))**2 <= r**2              # bottom-right
+        ((xx - r)**2 + (yy - r)**2 <= r**2) |                                # top-left
+        ((xx - (w - r - 1))**2 + (yy - r)**2 <= r**2) |                      # top-right
+        ((xx - r)**2 + (yy - (h - r - 1))**2 <= r**2) |                      # bottom-left
+        ((xx - (w - r - 1))**2 + (yy - (h - r - 1))**2 <= r**2)              # bottom-right
     )
     sub = frame[y:y+h, x:x+w]
     sub[mask] = color
