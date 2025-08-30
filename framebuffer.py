@@ -59,6 +59,7 @@ def build_frame():
     global status
     global old_Status
     with open(FB, "r+b") as fb:
+        text_block = build_image()
         frame = np.zeros((H, W), dtype=np.uint16)
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
