@@ -63,7 +63,7 @@ def build_frame():
         while True:
 
             block_noise = generate_smooth_noise(600, 1024)
-            frame[0:1024, 0:600] = pack_rgb565_from_array(block_noise)
+            frame[:, :] = pack_rgb565_from_array(block_noise)
 
             frame[50:150, 50:150] = grey
 
