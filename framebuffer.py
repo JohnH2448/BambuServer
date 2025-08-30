@@ -3,9 +3,9 @@ import time
 import threading
 import random
 from threading import Thread
+import numpy as np
+
 # import libpyfb
-
-
 def updates():
     while True:
         try:
@@ -24,35 +24,18 @@ FB = "/dev/fb0"
 W, H = 1024, 600
 LINE_LEN = W * 2
 
-def rgb565(r, g, b):
-    r5 = (r * 31 + 127) // 255
-    g6 = (g * 63 + 127) // 255
-    b5 = (b * 31 + 127) // 255
-    return struct.pack("<H", (r5 << 11) | (g6 << 5) | b5)
+def pack_rgb565(r, g, b):
+    return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
 def build_frame():
-    fd = os.open(FB, os.O_RDWR)
-    buf = mmap.mmap(fd, LINE_LEN * H, mmap.MAP_SHARED, mmap.PROT_WRITE | mmap.PROT_READ)
-    try:
+    with open(FB, "r+b") as fb:
         while True:
-            for y in range(H):
-                row = bytearray(LINE_LEN)
-                ar = random.randint(1, 135)
-                ge = random.randint(1, 135)
-                be = random.randint(1, 135)
-                for x in range(W):
-                    r = ar
-                    g = ge
-                    b = be
-                    row[2*x:2*x+2] = rgb565(r, g, b)
-                buf.seek(y * LINE_LEN)
-                buf.write(row)
-
-            buf.flush()
-            time.sleep(0.0333)
-    finally:
-        buf.close()
-        os.close(fd)
+            red = np.uint16(0xF800)
+            frame = np.full((H, W), pack_rgb565(random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)), dtype=np.uint16)
+            grey=pack_rgb565(135, 135, 135)
+            frame[50:150, 50:150] = grey
+            fb.seek(0)
+            fb.write(frame.tobytes())
 
 Thread(target=updates, daemon=True).start()
 Thread(target=build_frame, daemon=True).start()
