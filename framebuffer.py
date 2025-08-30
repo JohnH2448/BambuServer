@@ -6,8 +6,8 @@ from threading import Thread
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-status="None"
-old_Status="None"
+status={}
+old_Status={}
 
 # import libpyfb
 def updates():
@@ -18,9 +18,8 @@ def updates():
             response = requests.get("http://127.0.0.1:5000/update")
             if response.status_code == 200:
                 old_Status = status
-                status = str(response.json())
+                status = response.json()
                 print(status,"\n")
-                print(old_Status)
                 time.sleep(20)
             else:
                 print("Error:", response.status_code, response.text)
@@ -41,18 +40,23 @@ def pack_rgb565_from_array(rgb):
     b = rgb[..., 2] >> 3
     return ((r << 8) | (g << 3) | b).astype(np.uint16)
 
-def build_image():
-    global status
-    img = Image.new("RGB", (200, 50), (0, 0, 0))
+def build_image(frame, text, x, y, width, height):
+    text=str(text)
+    img = Image.new("RGB", (width, height), (0, 0, 0))
     draw = ImageDraw.Draw(img)
     font = ImageFont.load_default()
-    draw.text((5, 5), status, font=font, fill=(255, 255, 255))
-    # Convert the Pillow image to RGB565
+    draw.text((5, 5), text, font=font, fill=(255, 255, 255))
     rgb = np.array(img, dtype=np.uint8)
     r = (rgb[..., 0] & 0xF8).astype(np.uint16)
     g = (rgb[..., 1] & 0xFC).astype(np.uint16)
     b = (rgb[..., 2] >> 3).astype(np.uint16)
     text_block = (r << 8) | (g << 3) | b
+    H, W = frame.shape
+    if x >= W or y >= H or width <= 0 or height <= 0:
+        return text_block
+    w_fit = min(width,  W - x)
+    h_fit = min(height, H - y)
+    frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
     return text_block
 
 def build_frame():
@@ -64,15 +68,14 @@ def build_frame():
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
         while True:
-            if old_Status != status:
-                text_block = build_image()
             frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            frame[100:150, 100:300] = text_block
+            if old_Status != status:
+                build_image(frame, "What", 100, 100, 500, 200)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
             fb.write(frame.tobytes())
-            time.sleep(0.05)
+            time.sleep(0.1)
 
 Thread(target=updates, daemon=True).start()
 Thread(target=build_frame, daemon=True).start()
