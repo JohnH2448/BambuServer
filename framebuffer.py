@@ -27,21 +27,33 @@ LINE_LEN = W * 2
 def pack_rgb565(r, g, b):
     return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
-def draw_rounded_rect(frame, x, y, w, h, r, color):
-    yy, xx = np.ogrid[:h, :w]
-    mask = (
-        ((xx - r)**2 + (yy - r)**2 <= r**2) |                                # top-left
-        ((xx - (w - r - 1))**2 + (yy - r)**2 <= r**2) |                      # top-right
-        ((xx - r)**2 + (yy - (h - r - 1))**2 <= r**2) |                      # bottom-left
-        ((xx - (w - r - 1))**2 + (yy - (h - r - 1))**2 <= r**2)              # bottom-right
-    )
-    sub = frame[y:y+h, x:x+w]
-    sub[mask] = color
+def generate_smooth_noise(h, w, scale=8):
+    # Base random matrix, small size
+    base = np.random.rand(h//scale + 1, w//scale + 1, 3)
+    # Upsample via bilinear interpolation
+    y_idx = np.linspace(0, base.shape[0]-1, h)
+    x_idx = np.linspace(0, base.shape[1]-1, w)
+    y0 = np.floor(y_idx).astype(int)
+    x0 = np.floor(x_idx).astype(int)
+    y1 = np.clip(y0 + 1, 0, base.shape[0]-1)
+    x1 = np.clip(x0 + 1, 0, base.shape[1]-1)
 
-def draw_horizontal_gradient(frame, color1, color2):
-    W = frame.shape[1]
-    gradient = np.linspace(color1, color2, W, dtype=np.uint16)
-    frame[:] = gradient
+    wy = y_idx - y0
+    wx = x_idx - x0
+
+    noise = (
+        (1-wy)[:, None, None]*(1-wx)[None, :, None]*base[y0[:,None], x0[None,:]] +
+        wy[:, None, None]*(1-wx)[None, :, None]*base[y1[:,None], x0[None,:]] +
+        (1-wy)[:, None, None]*wx[None, :, None]*base[y0[:,None], x1[None,:]] +
+        wy[:, None, None]*wx[None, :, None]*base[y1[:,None], x1[None,:]]
+    )
+    return (noise * 255).astype(np.uint8)
+
+def pack_rgb565_from_array(rgb):
+    r = rgb[..., 0] & 0xF8
+    g = rgb[..., 1] & 0xFC
+    b = rgb[..., 2] >> 3
+    return ((r << 8) | (g << 3) | b).astype(np.uint16)
 
 def build_frame():
     with open(FB, "r+b") as fb:
@@ -49,9 +61,12 @@ def build_frame():
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
         while True:
-            draw_horizontal_gradient(frame, red, grey)
+
+            block_noise = generate_smooth_noise(600, 1024)
+            frame[0:1024, 0:600] = pack_rgb565_from_array(block_noise)
+
             frame[50:150, 50:150] = grey
-            draw_rounded_rect(frame, 400, 500, 200, 100, 20, grey)
+
             fb.seek(0)
             fb.write(frame.tobytes())
             time.sleep(0.0333)
