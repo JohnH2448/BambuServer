@@ -21,12 +21,12 @@ def updates():
                 status = str(response.json())
                 print(status,"\n")
                 print(old_Status)
-                time.sleep(1)
+                time.sleep(20)
             else:
                 print("Error:", response.status_code, response.text)
         except requests.exceptions.ConnectionError:
             print("Server is not running!")
-            time.sleep(1)
+            time.sleep(60)
 
 FB = "/dev/fb0"
 W, H = 1024, 600
