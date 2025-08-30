@@ -4,6 +4,7 @@ import threading
 import random
 from threading import Thread
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 # import libpyfb
 def updates():
@@ -27,45 +28,35 @@ LINE_LEN = W * 2
 def pack_rgb565(r, g, b):
     return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
-def generate_smooth_noise(h, w, scale=8):
-    # Base random matrix, small size
-    base = np.random.rand(h//scale + 1, w//scale + 1, 3)
-    # Upsample via bilinear interpolation
-    y_idx = np.linspace(0, base.shape[0]-1, h)
-    x_idx = np.linspace(0, base.shape[1]-1, w)
-    y0 = np.floor(y_idx).astype(int)
-    x0 = np.floor(x_idx).astype(int)
-    y1 = np.clip(y0 + 1, 0, base.shape[0]-1)
-    x1 = np.clip(x0 + 1, 0, base.shape[1]-1)
-
-    wy = y_idx - y0
-    wx = x_idx - x0
-
-    noise = (
-        (1-wy)[:, None, None]*(1-wx)[None, :, None]*base[y0[:,None], x0[None,:]] +
-        wy[:, None, None]*(1-wx)[None, :, None]*base[y1[:,None], x0[None,:]] +
-        (1-wy)[:, None, None]*wx[None, :, None]*base[y0[:,None], x1[None,:]] +
-        wy[:, None, None]*wx[None, :, None]*base[y1[:,None], x1[None,:]]
-    )
-    return (noise * 255).astype(np.uint8)
-
 def pack_rgb565_from_array(rgb):
     r = rgb[..., 0] & 0xF8
     g = rgb[..., 1] & 0xFC
     b = rgb[..., 2] >> 3
     return ((r << 8) | (g << 3) | b).astype(np.uint16)
 
+def build_image():
+    img = Image.new("RGB", (200, 50), (0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.load_default()
+    draw.text((5, 5), "Hello!", font=font, fill=(255, 255, 255))
+    # Convert the Pillow image to RGB565
+    rgb = np.array(img, dtype=np.uint8)
+    r = (rgb[..., 0] & 0xF8).astype(np.uint16)
+    g = (rgb[..., 1] & 0xFC).astype(np.uint16)
+    b = (rgb[..., 2] >> 3).astype(np.uint16)
+    text_block = (r << 8) | (g << 3) | b
+    return text_block
+
 def build_frame():
     with open(FB, "r+b") as fb:
+        text_block = build_image()
         frame = np.zeros((H, W), dtype=np.uint16)
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
         while True:
-
-            block_noise = generate_smooth_noise(600, 1024)
-            frame[:, :] = pack_rgb565_from_array(block_noise)
-
-            frame[50:150, 50:150] = grey
+            frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            frame[100:150, 100:300] = text_block
+            # frame[50:150, 50:150] = grey
 
             fb.seek(0)
             fb.write(frame.tobytes())
