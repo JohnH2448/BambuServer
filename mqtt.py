@@ -82,6 +82,10 @@ def on_message(client, userdata, msg):
     global printer_status
     try:
         data = json.loads(msg.payload.decode('utf-8'))
+        print_com = data.get("print")
+        print_com2 = printer_status.get("print")
+        print_com2.update(print_com)
+        data["print"] = print_com2
         printer_status.update(data)
     except Exception as e:
         print("Payload Error:", e)
