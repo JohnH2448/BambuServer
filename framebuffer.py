@@ -46,10 +46,10 @@ def draw_horizontal_gradient(frame, color1, color2):
 def build_frame():
     with open(FB, "r+b") as fb:
         frame = np.zeros((H, W), dtype=np.uint16)
+        grey=pack_rgb565(135, 135, 135)
+        red = np.uint16(0xF800)
         while True:
-            red = np.uint16(0xF800)
             draw_horizontal_gradient(frame, red, grey)
-            grey=pack_rgb565(135, 135, 135)
             frame[50:150, 50:150] = grey
             draw_rounded_rect(frame, 400, 500, 200, 100, 20, grey)
             fb.seek(0)
