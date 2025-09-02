@@ -69,7 +69,7 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
     return text_block
 
 
-def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
+def build_image(frame, text, x, y, width, height, font_size=48, radius=15,
                 bg_color=(128, 128, 128), text_color=(255, 255, 255)):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -119,7 +119,7 @@ def build_frame():
                 else:
                     pass
                 status["print"]["bed_temper"]
-                build_image(frame, str(status["print"]["nozzle_temper"]), 100, 100, 500, 200)
+                build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 150)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
