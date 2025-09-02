@@ -145,17 +145,17 @@ def build_frame():
                 else:
                     build_image(frame, "Waiting...", 50, 70, 300, 80)
                 if status.get("print", {}).get("mc_remaining_time") is not None:
-                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 50, 300, 100)
+                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
                 else:
-                    build_image(frame, "Waiting...", 50, 50, 300, 100)
+                    build_image(frame, "Waiting...", 50, 183, 300, 100)
                 if status.get("print", {}).get("layer_num") is not None:
-                    build_image(frame, str(status["print"]["layer_num"]), 50, 50, 300, 100)
+                    build_image(frame, str(status["print"]["layer_num"]), 50, 316, 300, 100)
                 else:
-                    build_image(frame, "Waiting...", 50, 50, 300, 100)
+                    build_image(frame, "Waiting...", 50, 316, 300, 100)
                 if status.get("print", {}).get("mc_percent") is not None:
                     build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 450, 300, 100)
                 else:
-                    build_image(frame, "Waiting...", 50, 50, 300, 100)
+                    build_image(frame, "Waiting...", 50, 450, 300, 100)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
