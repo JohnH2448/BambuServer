@@ -109,9 +109,9 @@ def build_frame():
     global old_Status
     with open(FB, "r+b") as fb:
         frame = np.zeros((H, W), dtype=np.uint16)
-        grey=pack_rgb565(135, 135, 135)
+        black=pack_rgb565(0, 0, 0)
         red = np.uint16(0xF800)
-        frame[:, :] = grey
+        frame[:, :] = black
         refresh = True
         while True:
             if old_Status != status:
@@ -120,7 +120,7 @@ def build_frame():
                     refresh = True
                 else:
                     if refresh==True:
-                        frame[:, :] = grey
+                        frame[:, :] = black
                         refresh = False 
                     if status.get("print", {}).get("nozzle_temper") is not None:
                         build_text(frame, "Nozzle Temp:", 18, 50, 50)
@@ -146,7 +146,7 @@ def build_frame():
                     else:
                         build_text(frame, "Completion:", 18, 50, 450)
                         build_image(frame, "Waiting...", 50, 475, 300, 75)
-            # frame[50:150, 50:150] = grey
+            # frame[50:150, 50:150] = black
 
             fb.seek(0)
             fb.write(frame.tobytes())
