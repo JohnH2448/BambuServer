@@ -40,12 +40,20 @@ def pack_rgb565_from_array(rgb):
     b = rgb[..., 2] >> 3
     return ((r << 8) | (g << 3) | b).astype(np.uint16)
 
-def build_image(frame, text, x, y, width, height, font_size=36):
-    text=str(text)
+def build_image(frame, text, x, y, width, height, font_size=24):
+    text = str(text)
     img = Image.new("RGB", (width, height), (0, 0, 0))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("DejaVuSans.ttf", font_size)
-    draw.text((5, 5), text, font=font, fill=(255, 255, 255))
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", font_size)
+    except IOError:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    text_x = (width - text_width) // 2
+    text_y = (height - text_height) // 2
+    draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255))
     rgb = np.array(img, dtype=np.uint8)
     r = (rgb[..., 0] & 0xF8).astype(np.uint16)
     g = (rgb[..., 1] & 0xFC).astype(np.uint16)
@@ -54,7 +62,7 @@ def build_image(frame, text, x, y, width, height, font_size=36):
     H, W = frame.shape
     if x >= W or y >= H or width <= 0 or height <= 0:
         return text_block
-    w_fit = min(width,  W - x)
+    w_fit = min(width, W - x)
     h_fit = min(height, H - y)
     frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
     return text_block
