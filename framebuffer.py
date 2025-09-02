@@ -150,7 +150,7 @@ def build_frame():
         while True:
             if old_Status != status:
                 if str(status["print"]["gcode_state"]) != "RUNNING":
-                    build_image(frame, "Awaiting Print...", 0, 0, 1024, 600)
+                    build_image(frame, "Awaiting Print...", 0, 0, 1024, 600, 50, 0)
                 else:
                     if status.get("print", {}).get("nozzle_temper") is not None:
                         build_text(frame, "Nozzle Temp:", 18, 50, 50)
