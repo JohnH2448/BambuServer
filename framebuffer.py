@@ -69,8 +69,9 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
     return text_block
 
 
-def build_image(frame, text, x, y, width, height, font_size=48, radius=15,
-                bg_color=(128, 128, 128), text_color=(255, 255, 255)):
+def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
+                bg_color=(128, 128, 128), text_color=(255, 255, 255),
+                outline=(255, 255, 255), outline_width=2):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -79,30 +80,42 @@ def build_image(frame, text, x, y, width, height, font_size=48, radius=15,
     except IOError:
         font = ImageFont.load_default()
     draw.rounded_rectangle(
-        [(0, 0), (width, height)],
+        [(0, 0), (width-1, height-1)],
         radius=radius,
-        fill=bg_color,
-        outline=(255, 255, 255),
-        width=2
+        fill=bg_color + (255,),                 # solid fill
+        outline=(outline + (255,)) if outline else None,
+        width=outline_width if outline else 0
     )
     bbox = draw.textbbox((0, 0), text, font=font)
-    text_width = bbox[2] - bbox[0]
-    text_height = bbox[3] - bbox[1]
-    text_x = (width - text_width) // 2
-    text_y = (height - text_height) // 2
-    draw.text((text_x, text_y), text, font=font, fill=text_color)
-    rgb = np.array(img, dtype=np.uint8)
-    r = (rgb[..., 0] & 0xF8).astype(np.uint16)
-    g = (rgb[..., 1] & 0xFC).astype(np.uint16)
-    b = (rgb[..., 2] >> 3).astype(np.uint16)
-    text_block = (r << 8) | (g << 3) | b
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    tx = (width - tw) // 2
+    ty = (height - th) // 2
+    draw.text((tx, ty), text, font=font, fill=text_color + (255,))
     H, W = frame.shape
     if x >= W or y >= H or width <= 0 or height <= 0:
-        return text_block
-    w_fit = min(width, W - x)
+        return None
+    w_fit = min(width,  W - x)
     h_fit = min(height, H - y)
-    frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
-    return text_block
+    src = np.array(img, dtype=np.uint8)[:h_fit, :w_fit, :]       # (h,w,4)
+    src_rgb = src[..., :3].astype(np.uint16)
+    alpha = (src[..., 3].astype(np.float32) / 255.0)             # (h,w)
+    if np.all(alpha == 0):
+        return None
+    dst565 = frame[y:y+h_fit, x:x+w_fit].astype(np.uint16)
+    dst_r = ((dst565 >> 11) & 0x1F).astype(np.uint16) << 3
+    dst_g = ((dst565 >> 5)  & 0x3F).astype(np.uint16) << 2
+    dst_b = ( dst565        & 0x1F).astype(np.uint16) << 3
+    dst_rgb = np.stack([dst_r, dst_g, dst_b], axis=-1).astype(np.uint16)
+    a = alpha[..., None]  # (h,w,1)
+    out_rgb = (a * src_rgb.astype(np.float32) + (1.0 - a) * dst_rgb.astype(np.float32)).round()
+    out_rgb = np.clip(out_rgb, 0, 255).astype(np.uint16)
+    r5 = (out_rgb[..., 0] >> 3) & 0x1F
+    g6 = (out_rgb[..., 1] >> 2) & 0x3F
+    b5 = (out_rgb[..., 2] >> 3) & 0x1F
+    out565 = (r5 << 11) | (g6 << 5) | b5
+    frame[y:y+h_fit, x:x+w_fit] = out565
+    return out565
 
 def build_frame():
     global status
