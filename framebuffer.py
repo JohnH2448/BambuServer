@@ -133,7 +133,7 @@ def build_frame():
                     pass
                 status["print"]["bed_temper"]
                 build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 100)
-                build_image(frame, f"{str(status["print"]["mc_remaining_time"])}m", 50, 200, 300, 100)
+                build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 200, 300, 100)
                 build_image(frame, str(status["print"]["layer_num"]), 50, 350, 300, 100)
             # frame[50:150, 50:150] = grey
 
