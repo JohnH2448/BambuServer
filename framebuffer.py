@@ -117,13 +117,28 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
     frame[y:y+h_fit, x:x+w_fit] = out565
     return out565
 
-def build_text(text, size, x, y):
-    img = Image.new("RGB", (300, 100), (30, 30, 30))
-    draw = ImageDraw.Draw(img)
+def build_text(frame, text, size, x, y):
     font = ImageFont.truetype("DejaVuSans.ttf", size)
-    draw.text((x, y), text, fill=(255, 255, 255), font=font)
-    img.show()
+    dummy_img = Image.new("RGB", (1, 1))
+    draw = ImageDraw.Draw(dummy_img)
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
 
+    img = Image.new("RGB", (text_width, text_height), (0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    draw.text((0, 0), text, fill=(255, 255, 255), font=font)
+    rgb = np.array(img, dtype=np.uint8)
+    r = (rgb[..., 0] & 0xF8).astype(np.uint16)
+    g = (rgb[..., 1] & 0xFC).astype(np.uint16)
+    b = (rgb[..., 2] >> 3).astype(np.uint16)
+    text_block = (r << 8) | (g << 3) | b
+    H, W = frame.shape
+    if x >= W or y >= H:
+        return
+    w_fit = min(text_width, W - x)
+    h_fit = min(text_height, H - y)
+    frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
 
 def build_frame():
     global status
@@ -140,9 +155,10 @@ def build_frame():
                 else:
                     pass
                 if status.get("print", {}).get("nozzle_temper") is not None:
-                    build_text("Nozzle Temp:", 24, 50, 50)
+                    build_text(frame, "Nozzle Temp:", 24, 50, 50)
                     build_image(frame, str(status["print"]["nozzle_temper"]), 50, 70, 300, 80)
                 else:
+                    build_text(frame, "Nozzle Temp:", 24, 50, 50)
                     build_image(frame, "Waiting...", 50, 70, 300, 80)
                 if status.get("print", {}).get("mc_remaining_time") is not None:
                     build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
