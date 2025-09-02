@@ -20,7 +20,7 @@ def updates():
                 old_Status = status
                 status = response.json()
                 print(status,"\n")
-                time.sleep(5)
+                time.sleep(0.1)
             else:
                 print("Error:", response.status_code, response.text)
         except requests.exceptions.ConnectionError:
@@ -71,7 +71,7 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
 
 def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
                 bg_color=(128, 128, 128), text_color=(255, 255, 255),
-                outline=(255, 255, 255), outline_width=2):
+                outline=(255, 255, 255)):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -84,7 +84,7 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
         radius=radius,
         fill=bg_color + (255,),                 # solid fill
         outline=(outline + (255,)) if outline else None,
-        width=outline_width if outline else 0
+        width=2
     )
     bbox = draw.textbbox((0, 0), text, font=font)
     tw = bbox[2] - bbox[0]
@@ -132,7 +132,9 @@ def build_frame():
                 else:
                     pass
                 status["print"]["bed_temper"]
-                build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 150)
+                build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 100)
+                build_image(frame, f"{str(status["print"]["mc_remaining_time"])}m", 50, 200, 300, 100)
+                build_image(frame, str(status["print"]["layer_num"]), 50, 350, 300, 100)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
