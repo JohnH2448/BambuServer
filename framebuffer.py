@@ -71,11 +71,8 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
 
 def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
                 bg_color=(128, 128, 128), text_color=(255, 255, 255)):
-    """
-    Draws a rounded rectangle with centered text inside and writes it to the framebuffer.
-    """
     text = str(text)
-    img = Image.new("RGB", (width, height), (0, 0, 0))
+    img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", font_size)
