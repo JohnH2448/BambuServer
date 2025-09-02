@@ -33,7 +33,7 @@
 
 2) Flash Rasberry Pi with Lite OS and connect via SSH
 
-3) Run the following in a terminal
+3) Run the following in a terminal\n
    
    sudo chvt 2
    sudo systemctl stop getty@tty2.service
