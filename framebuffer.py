@@ -35,7 +35,7 @@ def pack_rgb565(r, g, b):
     return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
 def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
-                bg_color=(9, 56, 11), text_color=(36, 177, 41),
+                bg_color=(6, 36, 7), text_color=(36, 177, 41),
                 outline=(36, 177, 41)):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
