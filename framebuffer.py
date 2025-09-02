@@ -70,7 +70,7 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
 
 
 def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
-                bg_color=(128, 128, 128), text_color=(255, 255, 255),
+                bg_color=(122, 122, 122), text_color=(255, 255, 255),
                 outline=(255, 255, 255)):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -124,7 +124,7 @@ def build_frame():
         frame = np.zeros((H, W), dtype=np.uint16)
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
-        frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        frame[:, :] = grey
         while True:
             if old_Status != status:
                 if str(status["print"]["gcode_state"]) == "RUNNING":
@@ -133,8 +133,9 @@ def build_frame():
                     pass
                 status["print"]["bed_temper"]
                 build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 100)
-                build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 200, 300, 100)
-                build_image(frame, str(status["print"]["layer_num"]), 50, 350, 300, 100)
+                build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
+                build_image(frame, str(status["print"]["layer_num"]), 50, 316, 300, 100)
+                build_image(frame, str(status["print"]["layer_num"]), 50, 450, 300, 100)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
