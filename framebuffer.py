@@ -124,7 +124,7 @@ def build_text(frame, text, size, x, y):
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
     text_height = bbox[3] - bbox[1]
-    img = Image.new("RGB", (text_width, text_height), (122, 122, 122))
+    img = Image.new("RGB", (text_width, text_height), (135, 135, 135))
     draw = ImageDraw.Draw(img)
     draw.text((0, 0), text, fill=(255, 255, 255), font=font)
     rgb = np.array(img, dtype=np.uint8)
@@ -155,10 +155,10 @@ def build_frame():
                     pass
                 if status.get("print", {}).get("nozzle_temper") is not None:
                     build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 70, 300, 80)
+                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 80)
                 else:
                     build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, "Waiting...", 50, 70, 300, 80)
+                    build_image(frame, "Waiting...", 50, 75, 300, 80)
                 if status.get("print", {}).get("mc_remaining_time") is not None:
                     build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
                 else:
