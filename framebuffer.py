@@ -149,34 +149,33 @@ def build_frame():
         frame[:, :] = grey
         while True:
             if old_Status != status:
-                if str(status["print"]["gcode_state"]) == "RUNNING":
-                    pass
+                if str(status["print"]["gcode_state"]) != "RUNNING":
+                    build_image(frame, "Awaiting Print...", 0, 0, 1024, 600)
                 else:
-                    pass
-                if status.get("print", {}).get("nozzle_temper") is not None:
-                    build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 75)
-                else:
-                    build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, "Waiting...", 50, 75, 300, 75)
-                if status.get("print", {}).get("mc_remaining_time") is not None:
-                    build_text(frame, "Remaining Time:", 18, 50, 183)
-                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 208, 300, 75)
-                else:
-                    build_text(frame, "Remaining Time:", 18, 50, 183)
-                    build_image(frame, "Waiting...", 50, 208, 300, 75)
-                if status.get("print", {}).get("layer_num") is not None:
-                    build_text(frame, "Layer Number:", 18, 50, 316)
-                    build_image(frame, str(status["print"]["layer_num"]), 50, 341, 300, 75)
-                else:
-                    build_text(frame, "Layer Number:", 18, 50, 316)
-                    build_image(frame, "Waiting...", 50, 341, 300, 75)
-                if status.get("print", {}).get("mc_percent") is not None:
-                    build_text(frame, "Completion:", 18, 50, 450)
-                    build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 475, 300, 75)
-                else:
-                    build_text(frame, "Completion:", 18, 50, 450)
-                    build_image(frame, "Waiting...", 50, 475, 300, 75)
+                    if status.get("print", {}).get("nozzle_temper") is not None:
+                        build_text(frame, "Nozzle Temp:", 18, 50, 50)
+                        build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 75)
+                    else:
+                        build_text(frame, "Nozzle Temp:", 18, 50, 50)
+                        build_image(frame, "Waiting...", 50, 75, 300, 75)
+                    if status.get("print", {}).get("mc_remaining_time") is not None:
+                        build_text(frame, "Remaining Time:", 18, 50, 183)
+                        build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 208, 300, 75)
+                    else:
+                        build_text(frame, "Remaining Time:", 18, 50, 183)
+                        build_image(frame, "Waiting...", 50, 208, 300, 75)
+                    if status.get("print", {}).get("layer_num") is not None:
+                        build_text(frame, "Layer Number:", 18, 50, 316)
+                        build_image(frame, str(status["print"]["layer_num"]), 50, 341, 300, 75)
+                    else:
+                        build_text(frame, "Layer Number:", 18, 50, 316)
+                        build_image(frame, "Waiting...", 50, 341, 300, 75)
+                    if status.get("print", {}).get("mc_percent") is not None:
+                        build_text(frame, "Completion:", 18, 50, 450)
+                        build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 475, 300, 75)
+                    else:
+                        build_text(frame, "Completion:", 18, 50, 450)
+                        build_image(frame, "Waiting...", 50, 475, 300, 75)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
