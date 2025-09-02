@@ -34,44 +34,9 @@ LINE_LEN = W * 2
 def pack_rgb565(r, g, b):
     return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
-def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
-    text = str(text)
-    img = Image.new("RGB", (width, height), (0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    try:
-        font = ImageFont.truetype("DejaVuSans.ttf", font_size)
-    except IOError:
-        font = ImageFont.load_default()
-    draw.rounded_rectangle(
-        [(0, 0), (width, height)],
-        radius=radius,
-        fill=(0, 0, 0),          # Background color
-        outline=(255, 255, 255), # Border color (optional)
-        width=2                  # Border thickness (optional)
-    )
-    bbox = draw.textbbox((0, 0), text, font=font)
-    text_width = bbox[2] - bbox[0]
-    text_height = bbox[3] - bbox[1]
-    text_x = (width - text_width) // 2
-    text_y = (height - text_height) // 2
-    draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255))
-    rgb = np.array(img, dtype=np.uint8)
-    r = (rgb[..., 0] & 0xF8).astype(np.uint16)
-    g = (rgb[..., 1] & 0xFC).astype(np.uint16)
-    b = (rgb[..., 2] >> 3).astype(np.uint16)
-    text_block = (r << 8) | (g << 3) | b
-    H, W = frame.shape
-    if x >= W or y >= H or width <= 0 or height <= 0:
-        return text_block
-    w_fit = min(width, W - x)
-    h_fit = min(height, H - y)
-    frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
-    return text_block
-
-
 def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
-                bg_color=(122, 122, 122), text_color=(255, 255, 255),
-                outline=(255, 255, 255)):
+                bg_color=(9, 56, 11), text_color=(36, 177, 41),
+                outline=(36, 177, 41)):
     text = str(text)
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -124,9 +89,9 @@ def build_text(frame, text, size, x, y):
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
     text_height = bbox[3] - bbox[1]
-    img = Image.new("RGB", (text_width, text_height), (135, 135, 135))
+    img = Image.new("RGB", (text_width, text_height), (0, 0, 0))
     draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text, fill=(255, 255, 255), font=font)
+    draw.text((0, 0), text, fill=(36, 177, 41), font=font)
     rgb = np.array(img, dtype=np.uint8)
     r = (rgb[..., 0] & 0xF8).astype(np.uint16)
     g = (rgb[..., 1] & 0xFC).astype(np.uint16)
