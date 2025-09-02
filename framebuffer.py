@@ -124,7 +124,7 @@ def build_text(frame, text, size, x, y):
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
     text_height = bbox[3] - bbox[1]
-    img = Image.new("RGB", (text_width, text_height+5), (135, 135, 135))
+    img = Image.new("RGB", (text_width, text_height+15), (135, 135, 135))
     draw = ImageDraw.Draw(img)
     draw.text((0, 0), text, fill=(255, 255, 255), font=font)
     rgb = np.array(img, dtype=np.uint8)
