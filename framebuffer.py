@@ -40,11 +40,11 @@ def pack_rgb565_from_array(rgb):
     b = rgb[..., 2] >> 3
     return ((r << 8) | (g << 3) | b).astype(np.uint16)
 
-def build_image(frame, text, x, y, width, height):
+def build_image(frame, text, x, y, width, height, font_size=36):
     text=str(text)
     img = Image.new("RGB", (width, height), (0, 0, 0))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.load_default()
+    font = ImageFont.truetype("DejaVuSans.ttf", font_size)
     draw.text((5, 5), text, font=font, fill=(255, 255, 255))
     rgb = np.array(img, dtype=np.uint8)
     r = (rgb[..., 0] & 0xF8).astype(np.uint16)
@@ -69,6 +69,10 @@ def build_frame():
         frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         while True:
             if old_Status != status:
+                if str(status["print"]["gcode_state"]) == "RUNNING":
+                    pass
+                else:
+                    pass
                 status["print"]["bed_temper"]
                 build_image(frame, str(status["print"]["nozzle_temper"]), 100, 100, 500, 200)
             # frame[50:150, 50:150] = grey
