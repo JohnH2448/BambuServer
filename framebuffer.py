@@ -20,7 +20,7 @@ def updates():
                 old_Status = status
                 status = response.json()
                 print(status,"\n")
-                time.sleep(0.1)
+                time.sleep(0.3)
             else:
                 print("Error:", response.status_code, response.text)
         except requests.exceptions.ConnectionError:
@@ -117,6 +117,14 @@ def build_image(frame, text, x, y, width, height, font_size=24, radius=15,
     frame[y:y+h_fit, x:x+w_fit] = out565
     return out565
 
+def build_text(text, size, x, y):
+    img = Image.new("RGB", (300, 100), (30, 30, 30))
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype("DejaVuSans.ttf", size)
+    draw.text((x, y), text, fill=(255, 255, 255), font=font)
+    img.show()
+
+
 def build_frame():
     global status
     global old_Status
@@ -131,11 +139,23 @@ def build_frame():
                     pass
                 else:
                     pass
-                status["print"]["bed_temper"]
-                build_image(frame, str(status["print"]["nozzle_temper"]), 50, 50, 300, 100)
-                build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
-                build_image(frame, str(status["print"]["layer_num"]), 50, 316, 300, 100)
-                build_image(frame, str(status["print"]["layer_num"]), 50, 450, 300, 100)
+                if status.get("print", {}).get("nozzle_temper") is not None:
+                    build_text("Nozzle Temp:", 24, 50, 50)
+                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 70, 300, 80)
+                else:
+                    build_image(frame, "Waiting...", 50, 70, 300, 80)
+                if status.get("print", {}).get("mc_remaining_time") is not None:
+                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 50, 300, 100)
+                else:
+                    build_image(frame, "Waiting...", 50, 50, 300, 100)
+                if status.get("print", {}).get("layer_num") is not None:
+                    build_image(frame, str(status["print"]["layer_num"]), 50, 50, 300, 100)
+                else:
+                    build_image(frame, "Waiting...", 50, 50, 300, 100)
+                if status.get("print", {}).get("mc_percent") is not None:
+                    build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 450, 300, 100)
+                else:
+                    build_image(frame, "Waiting...", 50, 50, 300, 100)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
