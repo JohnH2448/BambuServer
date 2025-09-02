@@ -147,11 +147,16 @@ def build_frame():
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
         frame[:, :] = grey
+        refresh = True
         while True:
             if old_Status != status:
                 if str(status["print"]["gcode_state"]) != "RUNNING":
                     build_image(frame, "Awaiting Print...", 0, 0, 1024, 600, 50, 0)
+                    refresh = True
                 else:
+                    if refresh==True:
+                        frame[:, :] = grey
+                        refresh = False 
                     if status.get("print", {}).get("nozzle_temper") is not None:
                         build_text(frame, "Nozzle Temp:", 18, 50, 50)
                         build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 75)
@@ -186,4 +191,4 @@ Thread(target=updates, daemon=True).start()
 Thread(target=build_frame, daemon=True).start()
 
 while True:
-    time.sleep(1)
+    time.sleep(1.1)
