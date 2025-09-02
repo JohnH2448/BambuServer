@@ -20,7 +20,7 @@ def updates():
                 old_Status = status
                 status = response.json()
                 print(status,"\n")
-                time.sleep(20)
+                time.sleep(5)
             else:
                 print("Error:", response.status_code, response.text)
         except requests.exceptions.ConnectionError:
@@ -66,10 +66,11 @@ def build_frame():
         frame = np.zeros((H, W), dtype=np.uint16)
         grey=pack_rgb565(135, 135, 135)
         red = np.uint16(0xF800)
+        frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         while True:
-            frame[:, :] = pack_rgb565(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             if old_Status != status:
-                build_image(frame, "What", 100, 100, 500, 200)
+                status["print"]["bed_temper"]
+                build_image(frame, str(status["print"]["nozzle_temper"]), 100, 100, 500, 200)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
