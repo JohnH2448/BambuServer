@@ -136,7 +136,7 @@ def build_text(frame, text, size, x, y):
     if x >= W or y >= H:
         return
     w_fit = min(text_width, W - x)
-    h_fit = min(text_height, H - y)
+    h_fit = min(text_height+5, H - y)
     frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
 
 def build_frame():
