@@ -135,8 +135,8 @@ def build_text(frame, text, size, x, y):
     H, W = frame.shape
     if x >= W or y >= H:
         return
-    w_fit = min(img.width, W - x)
-    h_fit = min(img.height, H - y)
+    w_fit = min(text_width, W - x)
+    h_fit = min(text_height, H - y)
     frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
 
 def build_frame():
@@ -155,22 +155,28 @@ def build_frame():
                     pass
                 if status.get("print", {}).get("nozzle_temper") is not None:
                     build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 80)
+                    build_image(frame, str(status["print"]["nozzle_temper"]), 50, 75, 300, 75)
                 else:
                     build_text(frame, "Nozzle Temp:", 18, 50, 50)
-                    build_image(frame, "Waiting...", 50, 75, 300, 80)
+                    build_image(frame, "Waiting...", 50, 75, 300, 75)
                 if status.get("print", {}).get("mc_remaining_time") is not None:
-                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 183, 300, 100)
+                    build_text(frame, "Remaining Time:", 18, 50, 183)
+                    build_image(frame, f"{str(status['print']['mc_remaining_time'])}m", 50, 208, 300, 75)
                 else:
-                    build_image(frame, "Waiting...", 50, 183, 300, 100)
+                    build_text(frame, "Remaining Time:", 18, 50, 183)
+                    build_image(frame, "Waiting...", 50, 208, 300, 75)
                 if status.get("print", {}).get("layer_num") is not None:
-                    build_image(frame, str(status["print"]["layer_num"]), 50, 316, 300, 100)
+                    build_text(frame, "Layer Number:", 18, 50, 316)
+                    build_image(frame, str(status["print"]["layer_num"]), 50, 341, 300, 75)
                 else:
-                    build_image(frame, "Waiting...", 50, 316, 300, 100)
+                    build_text(frame, "Layer Number:", 18, 50, 316)
+                    build_image(frame, "Waiting...", 50, 341, 300, 75)
                 if status.get("print", {}).get("mc_percent") is not None:
-                    build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 450, 300, 100)
+                    build_text(frame, "Completion:", 18, 50, 450)
+                    build_image(frame, f"{str(status['print']['mc_percent'])}%", 50, 475, 300, 75)
                 else:
-                    build_image(frame, "Waiting...", 50, 450, 300, 100)
+                    build_text(frame, "Completion:", 18, 50, 450)
+                    build_image(frame, "Waiting...", 50, 475, 300, 75)
             # frame[50:150, 50:150] = grey
 
             fb.seek(0)
