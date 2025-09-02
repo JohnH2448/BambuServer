@@ -34,13 +34,7 @@ LINE_LEN = W * 2
 def pack_rgb565(r, g, b):
     return np.uint16(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
-def pack_rgb565_from_array(rgb):
-    r = rgb[..., 0] & 0xF8
-    g = rgb[..., 1] & 0xFC
-    b = rgb[..., 2] >> 3
-    return ((r << 8) | (g << 3) | b).astype(np.uint16)
-
-def build_image(frame, text, x, y, width, height, font_size=24):
+def build_image(frame, text, x, y, width, height, font_size=24, radius=15):
     text = str(text)
     img = Image.new("RGB", (width, height), (0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -48,6 +42,13 @@ def build_image(frame, text, x, y, width, height, font_size=24):
         font = ImageFont.truetype("DejaVuSans.ttf", font_size)
     except IOError:
         font = ImageFont.load_default()
+    draw.rounded_rectangle(
+        [(0, 0), (width, height)],
+        radius=radius,
+        fill=(0, 0, 0),          # Background color
+        outline=(255, 255, 255), # Border color (optional)
+        width=2                  # Border thickness (optional)
+    )
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
     text_height = bbox[3] - bbox[1]
@@ -65,6 +66,7 @@ def build_image(frame, text, x, y, width, height, font_size=24):
     w_fit = min(width, W - x)
     h_fit = min(height, H - y)
     frame[y:y+h_fit, x:x+w_fit] = text_block[:h_fit, :w_fit]
+
     return text_block
 
 def build_frame():
