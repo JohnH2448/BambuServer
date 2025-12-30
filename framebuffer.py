@@ -115,7 +115,7 @@ def build_frame():
         refresh = True
         while True:
             if old_Status != status:
-                if str(status["print"]["gcode_state"]) != "RUNNING":
+                if str(status.get("print", {}).get("gcode_state")) != "RUNNING":
                     build_image(frame, "Awaiting Print...", 0, 0, 1024, 600, 50, 0)
                     refresh = True
                 else:
