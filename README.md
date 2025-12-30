@@ -22,50 +22,50 @@
   into the HDMI screen if desired. 
 
 ## Hardware Requirements
-- Linux System (Rasberry Pi 4)
+- Linux System (Rasberry Pi 4) (Lite OS) 
 - 1.05.00 Firmware (Tested)
-- Mini LCD Display (Built for 1024x600)
+- Mini RGB-565 LCD Display (Built for 1024x600) (CUQI 7 Inch mini LCD Screen Mini HDMI Montor)
 - HDMI and USB-C Cables
 - Bambu Labs Printer (Tested with A1)
 
 ## Setup
-1) Generate cert file for TLS, name it "blcert.pem", replace in directory
+1) Generate cert file for TLS, name it "blcert.pem", replace in BambuServer directory
 
-2) Flash Rasberry Pi with Lite OS and connect via SSH
-
-3) Run the following in a terminal
-   
-   sudo chvt 2
-   sudo systemctl stop getty@tty2.service
-   sudo bash -c 'clear > /dev/tty2'
-   sudo bash -c 'setterm -cursor off > /dev/tty2'
-   
-5) Install Python3, Git, and Bambu-go2rtc on Pi
-   
-   sudo apt install -y git
-   sudo apt install -y python3
-   git clone https://github.com/synman/bambu-go2rtc
-
-   
-6) Launch Linux go2rtc process in new terminal
-
-   PRINTER_ADDRESS=<INSERT_PRINTER_IP> PRINTER_ACCESS_CODE=<INSTERT_PRINTER_ACCESS_CODE> ./go2rtc_linux_arm64 -config ./go2rtc.yaml
-
-7) Fill out .env variables
+7) Fill out .env variables in BambuServer directory
    
    IP = Printer IP Address
    ACCESS_CODE = Printer Access Code
    SERIAL = Printer Serial Number
    CONTROLLER_IP = Server IP
 
+3) Flash Rasberry Pi with Lite OS and connect via SSH
+   
+5) Install Python3, Git, BabmuServer, and Bambu-go2rtc on Pi
+   
+   sudo apt install -y git
+   sudo apt install -y python3
+   git clone https://github.com/JohnH2448/BambuServer
+   git clone https://github.com/synman/bambu-go2rtc
+
 8) Create venv and install Python requirements (requirements.txt)
 
    python3 -m venv venv
    source venv/bin/activate
-
+   
 10) Go to wifi router settings and configure Pi and printer IPs as fixed
    
-11) Launch Flask server "mqtt.py" in new terminal
+11) Launch Flask server "mqtt.py" in new SSH terminal
 
-echo 0 | sudo tee /sys/class/vtconsole/vtcon1/bind
+6) Launch Linux go2rtc process in new SSH terminal
+
+   PRINTER_ADDRESS=<INSERT_PRINTER_IP> PRINTER_ACCESS_CODE=<INSTERT_PRINTER_ACCESS_CODE> ./go2rtc_linux_arm64 -config ./go2rtc.yaml
+
+7) Launch framebuffer builder "framebuffer.py" in new SSH Terminal
+
+4) Run the following in a new SSH terminal
+   
+   sudo chvt 2
+   sudo systemctl stop getty@tty2.service
+   sudo bash -c 'clear > /dev/tty2'
+   sudo bash -c 'setterm -cursor off > /dev/tty2'
 
